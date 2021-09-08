@@ -2,9 +2,12 @@
 //Div where profile information will appear
 const overview = document.querySelector('.overview');
 
+//Unordered list where repos will be displayed
+const repoList = document.querySelector('.repo-list');
+
 const username = 'wdwiii';
 
-//Fetch API Data
+//Fetch API User Data
 const getData = async () => {
   const fetchUser = await fetch(`https://api.github.com/users/${username}`);
   const userData = await fetchUser.json();
@@ -32,4 +35,31 @@ const getData = async () => {
   displayUser(userData);
 };
 
+//Fetch API Repo Data
+const getRepos = async () => {
+  const fetchRepos = await fetch(
+    `https://api.github.com/users/${username}/repos?sort=updated&per_page=100`
+  );
+  const repoData = await fetchRepos.json();
+  console.log(repoData);
+
+  //Function Notes
+  //1. Create function to display repo names
+  //2. Loop through each object in the repoData array
+  //3. For each object:
+  //3a. Create h3 element
+  //3b. Assign the repo text content as the objects 'name' value
+  //3c. Append the h3 element to the repoList
+  //4. Call function with repoData as a parameter
+  const displayRepoInfo = repoData => {
+    repoData.forEach(repo => {
+      const repoName = document.createElement('h3');
+      repoName.textContent = repo.name;
+      repoList.append(repoName);
+      console.log(repoName);
+    });
+  };
+  displayRepoInfo(repoData);
+};
+getRepos();
 getData();

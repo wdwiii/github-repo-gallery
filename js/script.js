@@ -5,6 +5,10 @@ const overview = document.querySelector('.overview');
 //Unordered list where repos will be displayed
 const repoList = document.querySelector('.repo-list');
 
+const repoSection = document.querySelector('.repos');
+
+const repoData = document.querySelector('.repo-data');
+
 const username = 'wdwiii';
 
 //Fetch API User Data
@@ -40,26 +44,80 @@ const getRepos = async () => {
   const fetchRepos = await fetch(
     `https://api.github.com/users/${username}/repos?sort=updated&per_page=100`
   );
-  const repoData = await fetchRepos.json();
-  console.log(repoData);
+  const reposArray = await fetchRepos.json();
+  console.log(reposArray);
 
   //Function Notes
   //1. Create function to display repo names
-  //2. Loop through each object in the repoData array
+  //2. Loop through each object in the reposArray array
   //3. For each object:
-  //3a. Create h3 element
-  //3b. Assign the repo text content as the objects 'name' value
-  //3c. Append the h3 element to the repoList
-  //4. Call function with repoData as a parameter
-  const displayRepoInfo = repoData => {
-    repoData.forEach(repo => {
-      const repoName = document.createElement('h3');
-      repoName.textContent = repo.name;
-      repoList.append(repoName);
-      console.log(repoName);
+  //3a. Create li element
+  //3b. Assign the innerHTML of the li to be an h3 element w/ repo name as text content
+  //3c. Append the li element to the repoList
+  //4. Call function with reposArray as a parameter
+  const displayRepoName = reposArray => {
+    reposArray.forEach(repo => {
+      const repoListItem = document.createElement('li');
+      repoListItem.innerHTML = `<h3>${repo.name}</h3>`;
+      repoList.append(repoListItem);
+      console.log(repoListItem);
     });
   };
-  displayRepoInfo(repoData);
+  displayRepoName(reposArray);
 };
+
+repoList.addEventListener('click', function (e) {
+  if (e.target.matches('h3')) {
+    const repoName = e.target.textContent;
+    console.log(repoName);
+    getRepoInfo(repoName);
+  }
+});
+
+//Fetch specifc information about repo
+//1. Fetch and parse repo infomation from API
+//2. Fetch and parse languages infomation from languages_url
+//3. Loop through language data
+//3a. For each language, push to empty language array
+const getRepoInfo = async repoName => {
+  const fetchInfo = await fetch(
+    `https://api.github.com/repos/${username}/${repoName}`
+  );
+  const repoInfo = await fetchInfo.json();
+  console.log(repoInfo);
+  const fetchLanguages = await fetch(repoInfo.languages_url);
+  const languageData = await fetchLanguages.json();
+
+  const languages = [];
+
+  for (let language in languageData) {
+    languages.push(language);
+  }
+  displayRepoInfo(repoInfo, languages);
+};
+
+//Function Notes
+//1. Empty the contents of the .repo-data section
+//2. Declare variable to create div element
+//3. Set innerHTML of new div to repo information
+//4. Append the newly created div to the .repo-data section
+//5. Remove 'hide' class from .repo-data section
+//6. Add 'hide' class to .repos section
+const displayRepoInfo = (repoInfo, languages) => {
+  repoData.innerHTML = '';
+  const repoInfoDiv = document.createElement('div');
+  repoInfoDiv.innerHTML = `
+  <h3>Name: ${repoInfo.name}</h3>
+      <p>Description: ${repoInfo.description}</p>
+      <p>Default Branch: ${repoInfo.default_branch}</p>
+      <p>Languages: ${languages.join(', ')}</p>
+      <a class="visit" href="${
+        repoInfo.html_url
+      }" target="_blank" rel="noreferrer noopener">View Repo on GitHub!</a>`;
+  repoData.append(repoInfoDiv);
+  repoData.classList.remove('hide');
+  repoSection.classList.add('hide');
+};
+
 getRepos();
 getData();

@@ -60,7 +60,7 @@ const getRepos = async () => {
       const repoListItem = document.createElement('li');
       repoListItem.innerHTML = `<h3>${repo.name}</h3>`;
       repoList.append(repoListItem);
-      console.log(repoListItem);
+      //console.log(repoListItem);
     });
   };
   displayRepoName(reposArray);

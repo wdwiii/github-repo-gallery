@@ -11,6 +11,10 @@ const repoData = document.querySelector('.repo-data');
 
 const username = 'wdwiii';
 
+const btnBackToRepo = document.querySelector('.view-repos');
+
+const filterInput = document.querySelector('.filter-repos');
+
 //Fetch API User Data
 const getData = async () => {
   const fetchUser = await fetch(`https://api.github.com/users/${username}`);
@@ -56,16 +60,42 @@ const getRepos = async () => {
   //3c. Append the li element to the repoList
   //4. Call function with reposArray as a parameter
   const displayRepoName = reposArray => {
+    filterInput.addEventListener('input', function (e) {
+      const searchbarValue = e.target.value;
+      const repos = document.querySelectorAll('.repo');
+
+      for (let repo of repos) {
+        let searchResult = searchbarValue.toLowerCase();
+        let repoTitle = repo.textContent.toLowerCase();
+
+        if (repoTitle.includes(searchResult)) {
+          repo.classList.remove('hide');
+        } else {
+          repo.classList.add('hide');
+        }
+      }
+      console.log(searchbarValue);
+    });
+
+    //Function Notes
+    //1. Loop through the repos in the reposArray
+    //2. For each:
+    //- Create a list item
+    //- Set the innerHTML as a h3 that displays the repo name
+    //- Add the class 'repo' to the list item
+    //- Append the list item to the list with a class of repo-list
     reposArray.forEach(repo => {
       const repoListItem = document.createElement('li');
       repoListItem.innerHTML = `<h3>${repo.name}</h3>`;
+      repoListItem.classList.add('repo');
       repoList.append(repoListItem);
-      //console.log(repoListItem);
+      console.log(repoListItem);
     });
   };
   displayRepoName(reposArray);
 };
 
+//When the user clicks on the h3 element, the event handler will grab the element’s text and then pull the corresponding data for the repo with the same name.
 repoList.addEventListener('click', function (e) {
   if (e.target.matches('h3')) {
     const repoName = e.target.textContent;
@@ -117,7 +147,18 @@ const displayRepoInfo = (repoInfo, languages) => {
   repoData.append(repoInfoDiv);
   repoData.classList.remove('hide');
   repoSection.classList.add('hide');
+  btnBackToRepo.classList.remove('hide');
 };
+
+//Event listener for back to repo gallery button
+//1. Hide the individual repo data
+//2. Hide the back to repo gallery button
+//3. Show the repo list
+btnBackToRepo.addEventListener('click', function () {
+  repoData.classList.add('hide');
+  repoSection.classList.remove('hide');
+  btnBackToRepo.classList.add('hide');
+});
 
 getRepos();
 getData();
